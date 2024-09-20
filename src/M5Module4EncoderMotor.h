@@ -44,8 +44,8 @@ class M5Module4EncoderMotor {
     I2C_Class _i2c;
 
    public:
-    bool begin(TwoWire *wire = &Wire, uint8_t addr = MODULE_4ENCODERMOTOR_ADDR,
-               uint8_t sda = 21, uint8_t scl = 22, long freq = 100000);
+    bool begin(TwoWire *wire = &Wire, uint8_t addr = MODULE_4ENCODERMOTOR_ADDR, uint8_t sda = 21, uint8_t scl = 22,
+               long freq = 100000);
     void setMode(uint8_t index, uint8_t mode);
     int32_t getEncoderValue(uint8_t index);
     void setEncoderValue(uint8_t index, int32_t encode);
@@ -63,7 +63,7 @@ class M5Module4EncoderMotor {
     void setSpeedPoint(uint8_t index, int8_t speed_point);
 
     bool getFirmwareVersion(uint8_t *fw);
-    void setI2CAddress(uint8_t addr);
+    bool setI2CAddress(uint8_t addr);
     uint8_t getI2CAddress(void);
     float getMotorCurrent(void);
     void jumpBootloader(void);
