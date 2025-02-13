@@ -2,8 +2,8 @@
  * @file DriverSample.ino
  * @author SeanKwok (shaoxiang@m5stack.com)
  * @brief Module 4EncoderMotor Test Demo.
- * @version 0.1
- * @date 2024-01-19
+ * @version 0.2
+ * @date 2025-02-11
  *
  *
  * @Hardwares: M5Core/Core2/CoreS3 + Module 4EncoderMotor
@@ -47,7 +47,9 @@ float avg_filter(float *data, int len) {
 }
 
 void setup() {
-    M5.begin();
+    auto cfg            = M5.config();
+    cfg.serial_baudrate = 115200;
+    M5.begin(cfg);
     M5.Display.begin();
 
     M5.Display.setTextColor(WHITE);
@@ -88,6 +90,15 @@ void setup() {
     }
 
     Serial.println("Driver Init success!");
+    uint8_t fw;
+    driver.getFirewareVersion(&fw);
+    Serial.println("Fireware Version: " + String(fw));
+    if (fw >= 3) {
+        for (uint8_t i = 0; i < 4; i++) {
+            Serial.println("Motor " + String(i) + " Soft Start and Stop: " +
+                           String(driver.getSoftStartAndStop(i)));
+        }
+    }
     M5.Display.clear();
     M5.Display.fillRect(0, 0, 320, 35, 0x27f);
     M5.Display.drawString("4Encoder Motor", 160, 7);

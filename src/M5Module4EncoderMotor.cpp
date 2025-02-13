@@ -4,7 +4,8 @@
 #define MIN(in, min)            (((in) < (min)) ? (in) : (min))
 #define CONSTRAIN(in, min, max) MAX(min, MIN(in, max))
 
-bool M5Module4EncoderMotor::begin(TwoWire *wire, uint8_t addr, uint8_t sda, uint8_t scl, long freq) {
+bool M5Module4EncoderMotor::begin(TwoWire *wire, uint8_t addr, uint8_t sda,
+                                  uint8_t scl, long freq) {
     _i2c.begin(wire, sda, scl, freq);
     _addr = addr;
     return _i2c.exist(addr);
@@ -24,7 +25,8 @@ uint8_t M5Module4EncoderMotor::checkIndex(uint8_t index) {
  */
 void M5Module4EncoderMotor::setMode(uint8_t index, uint8_t mode) {
     index = checkIndex(index);
-    _i2c.writeByte(_addr, MODULE_4ENCODERMOTOR_CONFIG_ADDR + (0x10 * index), mode);
+    _i2c.writeByte(_addr, MODULE_4ENCODERMOTOR_CONFIG_ADDR + (0x10 * index),
+                   mode);
 }
 
 /**
@@ -39,7 +41,8 @@ int32_t M5Module4EncoderMotor::getEncoderValue(uint8_t index) {
     index = checkIndex(index);
     addr  = MODULE_4ENCODERMOTOR_ENCODER_ADDR + 4 * index;
     _i2c.readBytes(_addr, addr, read_buf, 4);
-    return (read_buf[0] << 24) | (read_buf[1] << 16) | (read_buf[2] << 8) | read_buf[3];
+    return (read_buf[0] << 24) | (read_buf[1] << 16) | (read_buf[2] << 8) |
+           read_buf[3];
 }
 
 /**
@@ -106,7 +109,8 @@ int8_t M5Module4EncoderMotor::getMotorSpeed20MS(uint8_t index) {
     return read_data;
 }
 
-void M5Module4EncoderMotor::setPositionPID(uint8_t index, uint8_t kp, uint8_t ki, uint8_t kd) {
+void M5Module4EncoderMotor::setPositionPID(uint8_t index, uint8_t kp,
+                                           uint8_t ki, uint8_t kd) {
     uint8_t write_buf[3] = {0, 0, 0};
     uint8_t addr;
     index = checkIndex(index);
@@ -126,7 +130,8 @@ void M5Module4EncoderMotor::setPositionPID(uint8_t index, uint8_t kp, uint8_t ki
  * INT32_MIN ~ INT32_MAX
  * @return: None
  */
-void M5Module4EncoderMotor::setPositionPoint(uint8_t index, int32_t position_point) {
+void M5Module4EncoderMotor::setPositionPoint(uint8_t index,
+                                             int32_t position_point) {
     uint8_t addr;
     uint8_t write_buf[4] = {0, 0, 0, 0};
 
@@ -148,7 +153,8 @@ void M5Module4EncoderMotor::setPositionPoint(uint8_t index, int32_t position_poi
  * @param  max_pwm: 0 ~ 127, POSITION mode, max speed
  * @return:
  */
-void M5Module4EncoderMotor::setPostionPIDMaxSpeed(uint8_t index, uint8_t max_pwm) {
+void M5Module4EncoderMotor::setPostionPIDMaxSpeed(uint8_t index,
+                                                  uint8_t max_pwm) {
     uint8_t addr;
     index = checkIndex(index);
     addr  = MODULE_4ENCODERMOTOR_CONFIG_ADDR + index * 0x10 + 0x08;
@@ -156,7 +162,8 @@ void M5Module4EncoderMotor::setPostionPIDMaxSpeed(uint8_t index, uint8_t max_pwm
     _i2c.writeByte(_addr, addr, max_pwm);
 }
 
-void M5Module4EncoderMotor::setSpeedPID(uint8_t index, uint8_t kp, uint8_t ki, uint8_t kd) {
+void M5Module4EncoderMotor::setSpeedPID(uint8_t index, uint8_t kp, uint8_t ki,
+                                        uint8_t kd) {
     uint8_t write_buf[3] = {0, 0, 0};
     uint8_t addr;
     index = checkIndex(index);
@@ -189,7 +196,7 @@ void M5Module4EncoderMotor::setSpeedPoint(uint8_t index, int8_t speed_point) {
  * @param fw: pointer to the fw version
  * @return true or false
  */
-bool M5Module4EncoderMotor::getFirmwareVersion(uint8_t *fw) {
+bool M5Module4EncoderMotor::getFirewareVersion(uint8_t *fw) {
     uint8_t read_data;
     uint8_t addr;
     addr = MODULE_4ENCODERMOTOR_FIRMWARE_VERSION_ADDR;
@@ -276,4 +283,20 @@ uint16_t M5Module4EncoderMotor::getAnalogInput(hbridge_anolog_read_mode_t bit) {
         _i2c.readBytes(_addr, MODULE_4ENCODERMOTOR_ADC_12BIT_REG, data, 2);
         return (data[0] | (data[1] << 8));
     }
+}
+
+void M5Module4EncoderMotor::setSoftStartAndStop(uint8_t index, bool state) {
+    uint8_t buf;
+    index = checkIndex(index);
+    _i2c.readBytes(_addr, MODULE_4ENCODERMOTOR_SOFT_START_STOP_ADDR, &buf, 1);
+    buf = buf & ~(1 << index);
+    buf = buf | (state << index);
+    _i2c.writeByte(_addr, MODULE_4ENCODERMOTOR_SOFT_START_STOP_ADDR, buf);
+}
+
+bool M5Module4EncoderMotor::getSoftStartAndStop(uint8_t index) {
+    uint8_t data;
+    index = checkIndex(index);
+    _i2c.readBytes(_addr, MODULE_4ENCODERMOTOR_SOFT_START_STOP_ADDR, &data, 1);
+    return data & (1 << index);
 }
